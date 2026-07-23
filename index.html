@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suivi PTA - ZS Djidja Abomey Agbangnizoun</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<aside id="sidebar">
+  <div class="brand-block">
+    <div class="brand">Suivi PTA<br>ZS Djidja Abomey Agbangnizoun</div>
+    <div class="brand-sub">Missions · Parc auto · Finances</div>
+  </div>
+  <nav>
+    <button class="nav-btn active" data-panel="dashboard"><span class="ic">◆</span> Tableau de bord</button>
+    <button class="nav-btn" data-panel="mon-suivi" data-restricted="1"><span class="ic">◇</span> Mon suivi</button>
+    <button class="nav-btn" data-panel="activites" data-restricted="1"><span class="ic">▤</span> Activités PTA</button>
+    <button class="nav-btn" data-panel="missions"><span class="ic">▥</span> Missions</button>
+    <button class="nav-btn" data-panel="calendrier" data-restricted="1"><span class="ic">▧</span> Calendrier</button>
+    <button class="nav-btn" data-panel="vehicules"><span class="ic">▦</span> Véhicules</button>
+    <button class="nav-btn" data-panel="finances" data-restricted="1"><span class="ic">◈</span> Finances</button>
+    <button class="nav-btn" data-panel="comptes" data-restricted="1"><span class="ic">●</span> Comptes</button>
+  </nav>
+  <div class="session-block" id="session-block" style="display:none;">
+    <span class="session-chip" id="session-chip"></span>
+    <div class="session-role" id="session-role"></div>
+    <button class="btn btn-secondary btn-sm" id="btn-logout" style="width:100%;">Déconnexion</button>
+  </div>
+</aside>
+
+<div id="main-wrap">
+  <div id="topbar">
+    <div>
+      <button id="sidebar-toggle" class="btn btn-secondary btn-sm">☰</button>
+      <h1 id="topbar-title">Tableau de bord</h1>
+      <p>Base connectée au Google Sheet · Contrôle des chevauchements jour par jour</p>
+    </div>
+    <div id="annee-selector">
+      <label style="margin:0;">Année PTA</label>
+      <select id="sel-annee"></select>
+    </div>
+  </div>
+
+  <main>
+
+  <!-- ============ DASHBOARD (public) ============ -->
+  <section id="panel-dashboard" class="panel active">
+    <div id="dashboard-content"><div class="loading">Chargement…</div></div>
+  </section>
+
+  <!-- ============ MON SUIVI ============ -->
+  <section id="panel-mon-suivi" class="panel">
+    <div id="mon-suivi-gate" class="card">
+      <h2>Connexion requise</h2>
+      <p style="font-size:13px;color:var(--gris);">Connectez-vous pour voir le suivi de vos activités.</p>
+      <div id="login-alert-suivi"></div>
+      <div class="grid">
+        <div class="field"><label>Identifiant</label><input id="login-id-s" placeholder="Ex : agent1"></div>
+        <div class="field"><label>Mot de passe</label><input id="login-pw-s" type="password"></div>
+      </div>
+      <button class="btn btn-primary" id="btn-login-s">Se connecter</button>
+    </div>
+    <div id="mon-suivi-content" style="display:none;"></div>
+  </section>
+
+  <!-- ============ ACTIVITES PTA (assignation) ============ -->
+  <section id="panel-activites" class="panel">
+    <div id="activites-gate" class="card">
+      <h2>Connexion requise</h2>
+      <p style="font-size:13px;color:var(--gris);">Connectez-vous pour prendre en charge une activité PTA.</p>
+      <div id="login-alert-activites"></div>
+      <div class="grid">
+        <div class="field"><label>Identifiant</label><input id="login-id-a" placeholder="Ex : agent1"></div>
+        <div class="field"><label>Mot de passe</label><input id="login-pw-a" type="password"></div>
+      </div>
+      <button class="btn btn-primary" id="btn-login-a">Se connecter</button>
+    </div>
+    <div id="activites-content" style="display:none;">
+      <div class="card" id="admin-pta-card" style="display:none;">
+        <h2>Gestion des années du PTA (Administrateur)</h2>
+        <div id="pta-admin-alert"></div>
+        <div class="grid">
+          <div class="field"><label>Dupliquer les activités de l'année</label><select id="pta-annee-source"></select></div>
+          <div class="field"><label>Vers la nouvelle année</label><input id="pta-annee-cible" type="number" placeholder="Ex : 2027"></div>
+        </div>
+        <button class="btn btn-secondary" id="btn-dupliquer-annee">Dupliquer la structure vers cette nouvelle année</button>
+        <p style="font-size:12px;color:var(--gris);margin-top:8px;">Les missions et prises en charge ne sont pas copiées : chaque responsable réassigne ses activités sur la nouvelle année.</p>
+        <h3>Ajouter une activité isolée</h3>
+        <div class="grid">
+          <div class="field"><label>N° activité</label><input id="pta-n" type="number"></div>
+          <div class="field"><label>Intitulé</label><input id="pta-intitule"></div>
+          <div class="field"><label>Structure responsable</label><input id="pta-struct-resp"></div>
+          <div class="field"><label>Coût total (milliers FCFA)</label><input id="pta-cout" type="number"></div>
+        </div>
+        <button class="btn btn-secondary" id="btn-add-activite">Ajouter cette activité à l'année sélectionnée</button>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <h2 style="margin:0;">Activités du PTA — année sélectionnée</h2>
+          <input id="search-activites" placeholder="Rechercher une activité...">
+        </div>
+        <div id="activites-list-wrap"><div class="loading">Chargement…</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MISSIONS ============ -->
+  <section id="panel-missions" class="panel">
+    <div id="missions-gate">
+      <div class="card">
+        <h2>Connexion requise</h2>
+        <p style="font-size:13px;color:var(--gris);">Connectez-vous avec votre compte pour compléter ou modifier une mission.</p>
+        <div id="login-alert-missions"></div>
+        <div class="grid">
+          <div class="field"><label>Identifiant</label><input id="login-id-m" placeholder="Ex : agent1"></div>
+          <div class="field"><label>Mot de passe</label><input id="login-pw-m" type="password"></div>
+        </div>
+        <button class="btn btn-primary" id="btn-login-m">Se connecter</button>
+      </div>
+    </div>
+
+    <div id="missions-content" style="display:none;">
+      <div class="card" id="edit-card" style="display:none;">
+        <h2 id="form-title">Compléter la mission</h2>
+        <div id="form-alert"></div>
+        <div class="grid">
+          <div class="field" id="wrap-activite-select"><label>Activité PTA liée (parmi celles que vous avez prises en charge)</label><select id="f-activite"></select></div>
+          <div class="field" id="wrap-activite-readonly" style="display:none;"><label>Activité PTA liée</label><div class="readonly-field" id="f-activite-readonly"></div></div>
+          <div class="field"><label>Intitulé de la mission *</label><input id="f-intitule" placeholder="Ex : Monitoring S1 - FS Zoungoudo"></div>
+        </div>
+        <div class="field full" style="margin-top:6px;">
+          <label>Période de la mission * — ajoutez un intervalle, un jour isolé, ou plusieurs des deux</label>
+          <div class="segment-toggle">
+            <button type="button" id="mode-intervalle" class="active">Intervalle de jours</button>
+            <button type="button" id="mode-jour">Jour isolé</button>
+          </div>
+          <div class="segment-form">
+            <div class="field" id="wrap-debut"><label>Début</label><input id="seg-debut" type="date"></div>
+            <div class="field" id="wrap-fin"><label>Fin</label><input id="seg-fin" type="date"></div>
+            <button type="button" class="btn btn-secondary" id="btn-add-segment">+ Ajouter cette période</button>
+          </div>
+          <div id="segments-list" class="chip-list"></div>
+          <div id="nb-jours" class="nb-jours-badge"></div>
+        </div>
+        <div class="grid" style="margin-top:12px;">
+          <div class="field full"><label>Véhicule(s) engagé(s) de la flotte (optionnel)</label><div id="f-vehicules-chips" class="chip-list"></div></div>
+          <div class="field full"><label>Moyen hors flotte (moto personnelle, taxi, autre — jamais soumis au contrôle de chevauchement)</label><input id="f-moyen-hors-flotte" placeholder="Ex : Moto personnelle de l'agent"></div>
+          <div class="field full"><label>Résultats attendus</label><textarea id="f-resultats" placeholder="Ex : 35 fiches de supervision renseignées et validées"></textarea></div>
+          <div class="field"><label>Source de financement</label>
+            <select id="f-financement"><option>Fonds Propres</option><option>Budget National</option><option>Partenaire</option></select>
+          </div>
+          <div class="field"><label>Coût budgétaire (milliers FCFA)</label><input id="f-cout" type="number" min="0" step="1"></div>
+          <div class="field"><label>Statut</label><select id="f-statut"><option>Non réalisé</option><option>Réalisé</option></select></div>
+          <div class="field"><label>Kilométrage parcouru (km)</label><input id="f-km" type="number" min="0" step="1"></div>
+          <div class="field"><label>Carburant (litres / montant FCFA)</label><input id="f-carburant" placeholder="Ex : 20 L / 15 000 FCFA"></div>
+        </div>
+        <div style="margin-top:10px; display:flex; gap:10px;">
+          <button class="btn btn-primary" id="btn-save">Enregistrer</button>
+          <button class="btn btn-secondary" id="btn-cancel-edit">Annuler</button>
+        </div>
+      </div>
+
+      <div class="card" id="detail-card" style="display:none;">
+        <div class="toolbar"><h2 style="margin:0;" id="detail-title">Détails de la mission</h2><button class="btn btn-secondary btn-sm" id="btn-close-detail">Fermer</button></div>
+        <h3>Commentaires</h3>
+        <div id="commentaires-list"></div>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <input id="new-commentaire" placeholder="Ajouter un commentaire...">
+          <button class="btn btn-secondary btn-sm" id="btn-add-commentaire">Envoyer</button>
+        </div>
+        <h3>Historique</h3>
+        <div id="historique-list"></div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">Exporter</h3>
+        <div class="grid">
+          <div class="field"><label>Du mois</label><select id="export-mois-debut"></select></div>
+          <div class="field"><label>Au mois</label><select id="export-mois-fin"></select></div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" id="btn-export-programmation">Programmation (CSV)</button>
+          <button class="btn btn-accent btn-sm" id="btn-export-programmation-pdf">Programmation (PDF)</button>
+          <button class="btn btn-secondary btn-sm" id="btn-export-realisation">Réalisation (CSV)</button>
+          <button class="btn btn-accent btn-sm" id="btn-export-realisation-pdf">Réalisation (PDF)</button>
+          <button class="btn btn-secondary btn-sm" id="btn-export-csv">Toutes les missions (CSV)</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <h2 style="margin:0;">Missions du PTA</h2>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <select id="filter-planif">
+              <option value="toutes">Toutes les missions</option>
+              <option value="non-planifiees">Non planifiées uniquement</option>
+              <option value="planifiees">Planifiées uniquement</option>
+              <option value="mes-saisies">Mes saisies</option>
+              <option value="a-valider">À valider</option>
+            </select>
+            <input id="search-missions" placeholder="Rechercher...">
+            <button class="btn btn-secondary btn-sm" id="btn-new-hors-pta">+ Mission hors PTA</button>
+          </div>
+        </div>
+        <div id="missions-table-wrap"><div class="loading">Chargement…</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CALENDRIER ============ -->
+  <section id="panel-calendrier" class="panel">
+    <div id="calendrier-gate" class="card">
+      <h2>Connexion requise</h2>
+      <p style="font-size:13px;color:var(--gris);">Connectez-vous pour voir le calendrier des missions.</p>
+      <div id="login-alert-calendrier"></div>
+      <div class="grid">
+        <div class="field"><label>Identifiant</label><input id="login-id-cal" placeholder="Ex : agent1"></div>
+        <div class="field"><label>Mot de passe</label><input id="login-pw-cal" type="password"></div>
+      </div>
+      <button class="btn btn-primary" id="btn-login-cal">Se connecter</button>
+    </div>
+    <div id="calendrier-content" style="display:none;">
+      <div class="card">
+        <div class="toolbar">
+          <button class="btn btn-secondary btn-sm" id="btn-cal-prev">‹ Mois précédent</button>
+          <h2 id="cal-mois-label" style="margin:0;"></h2>
+          <button class="btn btn-secondary btn-sm" id="btn-cal-next">Mois suivant ›</button>
+        </div>
+        <div id="calendrier-grid"></div>
+      </div>
+      <div class="card">
+        <h2 id="cal-jour-title">Missions du jour</h2>
+        <div id="cal-jour-detail"><div class="empty">Cliquez un jour du calendrier pour voir le détail.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VEHICULES ============ -->
+  <section id="panel-vehicules" class="panel">
+    <div id="vehicules-gate">
+      <div class="card">
+        <h2>Connexion requise</h2>
+        <p style="font-size:13px;color:var(--gris);">Connectez-vous pour consulter et gérer le parc automobile.</p>
+        <div id="login-alert-vehicules"></div>
+        <div class="grid">
+          <div class="field"><label>Identifiant</label><input id="login-id-v" placeholder="Ex : parc"></div>
+          <div class="field"><label>Mot de passe</label><input id="login-pw-v" type="password"></div>
+        </div>
+        <button class="btn btn-primary" id="btn-login-v">Se connecter</button>
+      </div>
+    </div>
+
+    <div id="vehicules-content" style="display:none;">
+      <div class="card" id="add-vehicule-card">
+        <h2>Ajouter un véhicule</h2>
+        <div id="vehicule-alert"></div>
+        <div class="grid">
+          <div class="field"><label>Immatriculation *</label><input id="v-immat" placeholder="Ex : AA 1234 RB"></div>
+          <div class="field"><label>Marque / Modèle</label><input id="v-modele" placeholder="Ex : Toyota Land Cruiser"></div>
+          <div class="field"><label>Type</label>
+            <select id="v-type"><option>4x4</option><option>Berline</option><option>Moto</option><option>Ambulance</option><option>Bus</option><option>Camion</option><option>Autre</option></select>
+          </div>
+          <div class="field"><label>Statut</label>
+            <select id="v-statut"><option>Disponible</option><option>En mission</option><option>En maintenance</option><option>Hors service</option></select>
+          </div>
+          <div class="field"><label>Affectation / Base</label><input id="v-affectation" placeholder="Ex : Bureau de Zone DAA"></div>
+          <div class="field"><label>Observations</label><input id="v-observations"></div>
+        </div>
+        <button class="btn btn-primary" id="btn-add-vehicule">Ajouter le véhicule</button>
+      </div>
+      <div id="vehicule-restricted-note" class="alert alert-info" style="display:none;">Seul le rôle "Gestionnaire Parc" (ou Administrateur) peut ajouter un véhicule ou changer son statut. Vous consultez la liste en lecture seule.</div>
+      <div class="card"><h2>Parc automobile</h2><div id="vehicules-table-wrap"><div class="loading">Chargement…</div></div></div>
+    </div>
+  </section>
+
+  <!-- ============ FINANCES (Comptable / Administrateur) ============ -->
+  <section id="panel-finances" class="panel">
+    <div id="finances-gate" class="card">
+      <h2>Connexion requise (Comptable ou Administrateur)</h2>
+      <div id="login-alert-finances"></div>
+      <div class="grid">
+        <div class="field"><label>Identifiant</label><input id="login-id-f" placeholder="Ex : comptable"></div>
+        <div class="field"><label>Mot de passe</label><input id="login-pw-f" type="password"></div>
+      </div>
+      <button class="btn btn-primary" id="btn-login-f">Se connecter</button>
+    </div>
+    <div id="finances-content" style="display:none;">
+      <div id="finances-kpis"></div>
+      <div class="card">
+        <h2>Enregistrer un paiement</h2>
+        <div id="paiement-alert"></div>
+        <div class="grid">
+          <div class="field"><label>Activité PTA *</label><select id="p-activite"></select></div>
+          <div class="field"><label>Montant payé (milliers FCFA) *</label><input id="p-montant" type="number" min="0"></div>
+          <div class="field"><label>Date de paiement *</label><input id="p-date" type="date"></div>
+          <div class="field"><label>Mode / Référence</label><input id="p-reference" placeholder="Ex : Virement BOA #4521"></div>
+          <div class="field full"><label>Observations</label><input id="p-observations"></div>
+        </div>
+        <button class="btn btn-primary" id="btn-add-paiement">Enregistrer le paiement</button>
+      </div>
+      <div class="card">
+        <div class="toolbar"><h2 style="margin:0;">Réalisation financière du PTA (année sélectionnée)</h2>
+          <button class="btn btn-accent btn-sm" id="btn-export-financier-pdf">Exporter le rapport (PDF)</button>
+        </div>
+        <div id="finance-stacked-chart"></div>
+        <div id="realisation-financiere-wrap"><div class="loading">Chargement…</div></div>
+      </div>
+      <div class="card">
+        <h2>Évolution budget / engagé / payé dans le temps</h2>
+        <div id="finance-trend-chart"><div class="loading">Chargement…</div></div>
+      </div>
+      <div class="card">
+        <h2>Historique des paiements</h2>
+        <div id="paiements-table-wrap"><div class="loading">Chargement…</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMPTES (Administrateur) ============ -->
+  <section id="panel-comptes" class="panel">
+    <div id="comptes-gate" class="card">
+      <h2>Connexion requise (Administrateur)</h2>
+      <div id="login-alert-comptes"></div>
+      <div class="grid">
+        <div class="field"><label>Identifiant</label><input id="login-id-c" placeholder="Ex : admin"></div>
+        <div class="field"><label>Mot de passe</label><input id="login-pw-c" type="password"></div>
+      </div>
+      <button class="btn btn-primary" id="btn-login-c">Se connecter</button>
+    </div>
+    <div id="comptes-content" style="display:none;">
+      <div class="card">
+        <h2>Créer un compte</h2>
+        <div id="user-alert"></div>
+        <div class="grid">
+          <div class="field"><label>Nom complet *</label><input id="u-nom"></div>
+          <div class="field"><label>Identifiant *</label><input id="u-id"></div>
+          <div class="field"><label>Mot de passe *</label><input id="u-pw"></div>
+          <div class="field"><label>Qualité / fonction</label><input id="u-qualite" placeholder="Ex : Infirmier Superviseur"></div>
+          <div class="field"><label>Email (pour les notifications)</label><input id="u-email" type="email" placeholder="Ex : nom@exemple.com"></div>
+          <div class="field"><label>Rôle *</label>
+            <select id="u-role">
+              <option>Gestionnaire Missions</option>
+              <option>Gestionnaire Parc</option>
+              <option>Comptable</option>
+              <option>Administrateur</option>
+              <option>Consultation</option>
+            </select>
+          </div>
+          <div class="field full"><label>Observations</label><input id="u-observations"></div>
+        </div>
+        <button class="btn btn-primary" id="btn-add-user">Créer le compte</button>
+        <p style="font-size:12px;color:var(--gris);margin-top:8px;">Un "Gestionnaire Missions" prend lui-même en charge ses activités PTA depuis l'onglet "Activités PTA" une fois connecté — il n'y a rien à préassigner ici.</p>
+      </div>
+      <div class="card"><h2>Comptes existants</h2><div id="users-table-wrap"><div class="loading">Chargement…</div></div></div>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script src="transport-jsonp.js"></script>
+<script src="app-core.js"></script>
+</body>
+</html>
