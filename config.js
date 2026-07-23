@@ -3,4 +3,4 @@
 // (Extensions > Apps Script > Déployer > Nouveau déploiement > Application Web)
 // Elle ressemble à : https://script.google.com/macros/s/AKfycb.../exec
 // ===========================================================================
-const WEBAPP_URL = "COLLEZ_ICI_VOTRE_URL_DE_DEPLOIEMENT_APPS_SCRIPT";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw6w-Tr5bS1dDNZ4j7lX8u1VqxadkdDJ7zQpa-bgAiyIV38ClWq-SslVNwhTX2fn2VnMg/exec";
