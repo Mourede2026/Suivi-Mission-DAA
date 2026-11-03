@@ -1,0 +1,30 @@
+SUIVI MISSION - ZS DAA : INSTALLER L'APPLICATION
+=================================================
+
+1) MISE EN LIGNE (une seule fois)
+   - Remplacez les fichiers de votre depot GitHub par le contenu de ce dossier
+     (gardez le dossier "icons" tel quel, au meme niveau que index.html).
+   - L'adresse doit etre en https:// (GitHub Pages convient).
+   - config.js n'a pas ete modifie : votre WEBAPP_URL Apps Script est conserve.
+
+2) INSTALLATION SUR CHAQUE APPAREIL
+   Ordinateur Windows / Mac / Linux (Chrome ou Edge)
+     -> Ouvrez l'adresse du site, puis cliquez sur l'icone d'installation a
+        droite de la barre d'adresse, ou sur le bouton "Installer l'application"
+        (menu du compte, en haut a droite de l'application).
+   Tablette Android (Chrome)
+     -> Menu (3 points) > "Installer l'application", ou bouton dans l'application.
+   iPad / iPhone (Safari uniquement)
+     -> Bouton Partager > "Sur l'ecran d'accueil".
+   Mac (Safari)
+     -> Menu Fichier > "Ajouter au Dock".
+
+   L'application s'ouvre ensuite dans sa propre fenetre, avec son icone,
+   comme une application classique.
+
+3) MISE A JOUR DE L'ICONE
+   Si une ancienne version etait deja installee, desinstallez-la puis
+   reinstallez-la pour afficher la nouvelle icone.
+
+Contenu de "icons" : icon-*.png (toutes tailles), icon-maskable-*.png (Android),
+icon-180.png (iPad/iPhone), favicon.ico, icon.svg (modele vectoriel).

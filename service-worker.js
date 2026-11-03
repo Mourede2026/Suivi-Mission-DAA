@@ -1,11 +1,16 @@
-// Service worker minimal : ne fait pas de cache agressif (les données viennent
-// toujours d'Apps Script en direct), il sert juste à remplir la condition
-// technique d'installabilité PWA sur Android/Chrome.
-const CACHE_NAME = 'zsdaa-shell-v1';
-const SHELL_FILES = ['./', './index.html', './styles.css', './app-core.js', './config.js', './transport-jsonp.js'];
+// Service worker : rend l'application installable (tablette / ordinateur) et
+// garde la « coquille » de l'appli disponible hors ligne.
+// Les données (Apps Script, polices Google) ne sont JAMAIS mises en cache ici :
+// seules les requêtes de la même origine (fichiers de l'appli) sont gérées.
+const CACHE_NAME = 'zsdaa-shell-v2';
+const SHELL_FILES = [
+  './', './index.html', './styles.css', './config.js', './transport-jsonp.js',
+  './app-core.js', './pwa-install.js', './manifest.webmanifest',
+  './icons/icon-192.png', './icons/icon-512.png'
+];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_FILES)).catch(() => {}));
+  event.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(SHELL_FILES)).catch(() => {}));
   self.skipWaiting();
 });
 
@@ -16,17 +21,25 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Stratégie "réseau d'abord" : on veut toujours les données à jour ; le cache
-// ne sert que de secours hors-ligne pour la coquille de l'application.
+// « Réseau d'abord » : on veut toujours la version à jour ; le cache ne sert
+// que de secours quand il n'y a pas de connexion.
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return; // Apps Script, Google Fonts… : laissé au navigateur
+
   event.respondWith(
-    fetch(event.request)
+    fetch(req)
       .then((res) => {
-        const resClone = res.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone)).catch(() => {});
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {});
+        }
         return res;
       })
-      .catch(() => caches.match(event.request))
+      .catch(() =>
+        caches.match(req).then((hit) => hit || (req.mode === 'navigate' ? caches.match('./index.html') : undefined))
+      )
   );
 });
