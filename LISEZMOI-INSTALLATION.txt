@@ -23,8 +23,8 @@ SUIVI MISSION - ZS DAA : INSTALLER L'APPLICATION
    comme une application classique.
 
 3) MISE A JOUR DE L'ICONE
-   Si une ancienne version etait deja installee, desinstallez-la puis
+   Si une ancienne version etait deja installee (icone differente), desinstallez-la puis
    reinstallez-la pour afficher la nouvelle icone.
 
 Contenu de "icons" : icon-*.png (toutes tailles), icon-maskable-*.png (Android),
-icon-180.png (iPad/iPhone), favicon.ico, icon.svg (modele vectoriel).
+icon-180.png (iPad/iPhone), favicon.ico, logo.png (logo transparent utilise dans l'application).

@@ -2,11 +2,11 @@
 // garde la « coquille » de l'appli disponible hors ligne.
 // Les données (Apps Script, polices Google) ne sont JAMAIS mises en cache ici :
 // seules les requêtes de la même origine (fichiers de l'appli) sont gérées.
-const CACHE_NAME = 'zsdaa-shell-v2';
+const CACHE_NAME = 'zsdaa-shell-v3';
 const SHELL_FILES = [
   './', './index.html', './styles.css', './config.js', './transport-jsonp.js',
   './app-core.js', './pwa-install.js', './manifest.webmanifest',
-  './icons/icon-192.png', './icons/icon-512.png'
+  './icons/icon-192.png', './icons/icon-512.png', './icons/logo.png'
 ];
 
 self.addEventListener('install', (event) => {
